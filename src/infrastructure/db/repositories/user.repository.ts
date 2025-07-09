@@ -1,5 +1,5 @@
-import prisma from '../connection/prisma.client.js';
-import { IUser } from '../../../domain/interfaces/user.interface.js';
+import prisma from '../connection/prisma.client';
+import { IUser } from '../../../domain/interfaces/user.interface';
 import { Prisma } from '@prisma/client';
 
 function toIUser(user: any): IUser {

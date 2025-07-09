@@ -2,6 +2,7 @@ import { config } from './config/env.js';
 import app from './app.js';
 import prisma from './infrastructure/db/connection/prisma.client.js';
 
+
 const startServer = async () => {
   try {
     await prisma.$connect();

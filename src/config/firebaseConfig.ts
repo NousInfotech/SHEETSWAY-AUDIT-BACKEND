@@ -1,6 +1,6 @@
 // src/config/firebaseConfig.ts
 import admin from 'firebase-admin';
-import { config } from "./env.js";
+import { config } from "./env";
 
 const serviceAccount = {
   type: config.fb_type,
