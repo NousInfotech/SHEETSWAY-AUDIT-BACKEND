@@ -1,46 +1,63 @@
-import prisma from '../connection/prisma.client';
-import { IUser } from '../../../domain/interfaces/user.interface';
-import { Prisma } from '@prisma/client';
-
-function toIUser(user: any): IUser {
-  return {
-    id: user.id,
-    firebaseId: user.firebaseId,
-    email: user.email,
-    name: user.name ?? undefined,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
-  };
-}
+import prisma from '../connection/prisma.client.js';
+import type { Prisma, User } from '@prisma/client';
 
 export const userRepository = {
-  async createUser(data: Prisma.UserCreateInput): Promise<IUser> {
-    const user = await prisma.user.create({ data });
-    return toIUser(user);
+  async createUser(data: Prisma.UserCreateInput): Promise<User> {
+    return prisma.user.create({ data });
   },
 
-  async getUserById(id: string): Promise<IUser | null> {
-    const user = await prisma.user.findUnique({ where: { id } });
-    return user ? toIUser(user) : null;
+  async upsertUser(data: { authId: string; name?: string }): Promise<User> {
+    return prisma.user.upsert({
+      where: { authId: data.authId },
+      update: { name: data.name },
+      create: {
+        authId: data.authId,
+        name: data.name
+      }
+    });
   },
 
-  async getUserByEmail(email: string): Promise<IUser | null> {
-    const user = await prisma.user.findUnique({ where: { email } });
-    return user ? toIUser(user) : null;
+  async getUserById(id: string): Promise<User | null> {
+    return prisma.user.findUnique({ where: { id } });
   },
 
-  async updateUser(id: string, data: Prisma.UserUpdateInput): Promise<IUser | null> {
-    const user = await prisma.user.update({ where: { id }, data });
-    return toIUser(user);
+  async getUserByAuthId(authId: string): Promise<User | null> {
+    return prisma.user.findUnique({ where: { authId } });
   },
 
-  async deleteUser(id: string): Promise<IUser | null> {
-    const user = await prisma.user.delete({ where: { id } });
-    return toIUser(user);
+  async updateUser(id: string, data: Prisma.UserUpdateInput): Promise<User | null> {
+    return prisma.user.update({ where: { id }, data });
   },
 
-  async getAllUsers(): Promise<IUser[]> {
-    const users = await prisma.user.findMany();
-    return users.map(toIUser);
+  async deleteUser(id: string): Promise<User | null> {
+    return prisma.user.delete({ where: { id } });
   },
+
+  async getAllUsers(): Promise<User[]> {
+    return prisma.user.findMany();
+  },
+
+  async getAllUsersPaginated({
+    filters = {},
+    limit = 10,
+    page = 1,
+    authIds
+  }: {
+    filters?: Record<string, any>;
+    limit?: number;
+    page?: number;
+    authIds?: string[];
+  }): Promise<{ users: User[]; total: number }> {
+    const where: Prisma.UserWhereInput = { ...filters };
+    if (authIds && authIds.length > 0) {
+      where.authId = { in: authIds };
+    }
+    const total = await prisma.user.count({ where });
+    const users = await prisma.user.findMany({
+      where,
+      skip: (page - 1) * limit,
+      take: limit
+    });
+    return { users, total };
+  }
 };

@@ -1,19 +1,16 @@
 import { Router } from 'express';
-import { UserController } from '../controllers/user.controller';
-import { authMiddleware } from '../../middleware/firebaseAuth';
+import { UserController } from '../controllers/user.controller.js';
+import { authMiddleware } from '../../middleware/firebaseAuth.js';
 
 const userRouter = Router();
 
-// Public route
+// Public routes
 userRouter.post('/', UserController.createUser);
 
-// Protected Firebase route
-userRouter.post('/firebase-register', authMiddleware, UserController.firebaseRegister);
-
-// Protected CRUD routes
+// Protected routes
 userRouter.get('/', UserController.getAllUsers);
-userRouter.get('/:userId', UserController.getUserById);
-userRouter.put('/:userId', UserController.updateUser);
-userRouter.delete('/:userId', UserController.deleteUser);
+userRouter.get('/:userId', authMiddleware, UserController.getUserById);
+userRouter.put('/:userId', authMiddleware, UserController.updateUser);
+userRouter.delete('/:userId', authMiddleware, UserController.deleteUser);
 
 export default userRouter;

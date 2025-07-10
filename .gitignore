@@ -40,6 +40,6 @@ pids/
 .env.test.local
 .env.production.local
 
-personal-note.txt
+notes.txt
 
 

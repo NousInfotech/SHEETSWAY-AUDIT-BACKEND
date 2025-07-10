@@ -2,12 +2,12 @@ import { z } from 'zod';
 
 export const userSchema = z.object({
   firebaseId: z.string(),
-  email: z.string().email(),
-  name: z.string().optional(),
+  email: z.string().email("email is required"),
+  name: z.string().min(1, "name is required"),
+  role: z.enum(['USER', 'AUDITOR', 'ADMIN']),
 });
 
 export const updateUserSchema = z.object({
-  email: z.string().email().optional(),
   name: z.string().optional(),
 });
 

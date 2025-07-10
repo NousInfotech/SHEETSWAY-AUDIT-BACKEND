@@ -1,7 +1,6 @@
 export interface IUser {
   id: string;
-  firebaseId: string;
-  email: string;
+  authId: string;
   name?: string;
   createdAt: Date;
   updatedAt: Date;
